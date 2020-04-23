@@ -1,63 +1,46 @@
-
-
-
 <html>
 <form action="online.php" method="post">
-
-<head>
-
-                                        </head>
 </html>
 <?php
-$pas=$_POST['password'];
-$log=$_POST['login'];
+$pass=$_POST['password'];
+$login=$_POST['login'];
+$mysql=new mysqli('localhost','zeka','123','turn');
 
-
-
-
-
-$file = file_get_contents('data.json');
-$taskList = json_decode($file,TRUE);
-
-$end=end($taskList);
-
-$user= reset ($taskList) ;    // отвечает за пользователя
-$data=reset($user);     // Отвечает за пароль логин
-
-
-
-
-
-for ( ;$log !==$data ; ){
-
-if ($end==$user){
-header('Location: /indexerr.php');
-die();}
-$user=next ($taskList);
-$data=current ($user);
-
+if ($mysql->connect_error) {
+    die("Connection error: ".$mysql>connect_error);
+    $mysql->close();
+ header('Location: /indexerr.php');
+    exit();
 }
 
-$data=next($user);
+$result=$mysql->query ("SELECT*  FROM `start` WHERE  `login` = '$login'");
+$user=$result-> fetch_assoc();
+if ($user == null) {
+ header('Location: /indexerr.php');
+ die();
+ }
+
+ $hash=next($user);
+ $hash=next($user);
+
+
+if(!password_verify($pass,$hash)){
+ header('Location: /indexerr.php');
+die();
+}
 
 
 
+$mysql->query("UPDATE `start` SET `status`='online'
+WHERE  `login`='$login'");
 
-if ( password_verify ($pas,$data)){
 
+
+setcookie ("login",$login, time()+999*9999);
+setcookie("password",$hash,time()+999*9999);
+session_start();
+$_SESSION["login"]=$login;
 header('Location: /online.php');
-
-$coke=setcookie ("password",$data);
-
-$cookie= $_COOKIE["password"];
-
-
-$coke=setcookie ("login",$log);
-
-$cok= $_COOKIE["login"];
-}
-else
-
-header('Location: /indexerr.php');
+$mysql->close();
 
 ?>
