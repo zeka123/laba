@@ -1,35 +1,20 @@
+
 <html>
+
 <form action="online.php" method="post">
+
+<head>
+
+                                        </head>
 </html>
 <?PHP
 $login = $_POST['login'];
 $pass  = $_POST['password'];
-$file = file_get_contents('data.json');
-$taskList = json_decode($file,TRUE);
-if($file!=NULL){
-$end=end($taskList);
-$user= reset ($taskList) ;    // отвечает за пользователя
-$data=reset ($user);     // Отвечает за пароль логин
-for (  ;$login !=$data;){
-if ($user==$end){
-break;
- }
-if ($login==$data){
-header('Location: /error.php');
-die();
-}
-$user=next ($taskList);
-$data=reset($user);
-if ($login==$data){
-header('Location: /error.php');
-die();
-}
- }
-}
-if ($login==$data){
-header('Location: /error.php');
-die();
-}
+
+
+
+
+
 
 if ($login== ""){
 header('Location: /error.php');
@@ -39,24 +24,47 @@ if($pass==""){
 header('Location: /error.php');
 die();
 }
-$hash=password_hash($pass,PASSWORD_BCRYPT );
-$pass=$hash;
 
-$file = file_get_contents('data.json');
 
-$taskList = json_decode($file,TRUE);
 
-unset($file);
 
-$taskList[] = array('login '=>$login , 'password'=>$pass);
-file_put_contents('data.json',json_encode($taskList));
+$pass=password_hash($pass,PASSWORD_BCRYPT );
+echo("SDfsdf");
+ $mysql=new mysqli('localhost','zeka','123','turn');
 
-unset($taskList);
+$result=$mysql->query ("SELECT*  FROM `start` WHERE  `login` = '$login'");
 
-$pascoke=setcookie ("password",$pass);
-$cookie= $_COOKIE["password"];
-$log=$_POST['login'];
-$coke=setcookie ("login",$log);
-$cok= $_COOKIE["login"];
+
+$user=$result-> fetch_assoc();
+if($user!=null){
+ header('Location: /error.php');
+die();
+}
+
+
+
+
+
+$mysql->query("INSERT INTO `start` (`login`,`password`,`status`)
+VALUES('$login','$pass','online')");
+$mysql->close();
+
+setcookie ("password",$pass,time()+4999*999);
+setcookie ("login",$login,time()+999*999);
+
+session_start();
+$_SESSION["login"]=$login;
 header('Location: /online.php');
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
